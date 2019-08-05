@@ -1,3 +1,15 @@
+type Context<S, A, G, M, RS, RG> = {
+  commit: Commit<M>;
+  state: S;
+  dispatch: Dispatch<A>;
+  getters: G;
+  rootState: RS;
+  rootGetters: RG;
+};
+
+type Commit<M> = <T extends keyof M>(type: T, payload?: M[T]) => void;
+type Dispatch<A> = <T extends keyof A>(type: T, payload?: A[T]) => any;
+
 interface State {
   count: number;
 }
@@ -35,5 +47,23 @@ export const mutations: Mutations<State, IMutations> = {
   },
   setCount(state, count) {
     state.count = count;
+  }
+};
+
+type Actions<S, A, G = {}, M = {}, RS = {}, RG = {}> = {
+  [K in keyof A]: (ctx: Context<S, A, G, M, RS, RG>, payload: A[K]) => any;
+};
+
+interface IActions {
+  asyncIncrement: void;
+  asyncMulti: number;
+}
+
+export const actions: Actions<State, IActions, IGetters, IMutations> = {
+  asyncIncrement({ commit }) {
+    commit("increment");
+  },
+  asyncMulti({ commit, state }, payload) {
+    commit("setCount", state.count * payload);
   }
 };
